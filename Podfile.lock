@@ -1,0 +1,46 @@
+PODS:
+  - AFNetworking (2.5.4):
+    - AFNetworking/NSURLConnection (= 2.5.4)
+    - AFNetworking/NSURLSession (= 2.5.4)
+    - AFNetworking/Reachability (= 2.5.4)
+    - AFNetworking/Security (= 2.5.4)
+    - AFNetworking/Serialization (= 2.5.4)
+    - AFNetworking/UIKit (= 2.5.4)
+  - AFNetworking/NSURLConnection (2.5.4):
+    - AFNetworking/Reachability
+    - AFNetworking/Security
+    - AFNetworking/Serialization
+  - AFNetworking/NSURLSession (2.5.4):
+    - AFNetworking/Reachability
+    - AFNetworking/Security
+    - AFNetworking/Serialization
+  - AFNetworking/Reachability (2.5.4)
+  - AFNetworking/Security (2.5.4)
+  - AFNetworking/Serialization (2.5.4)
+  - AFNetworking/UIKit (2.5.4):
+    - AFNetworking/NSURLConnection
+    - AFNetworking/NSURLSession
+  - CYToolKit (2015.5.21.1):
+    - CYToolKit/Category (= 2015.5.21.1)
+    - CYToolKit/Utils (= 2015.5.21.1)
+  - CYToolKit/Category (2015.5.21.1)
+  - CYToolKit/Utils (2015.5.21.1)
+  - MBProgressHUD (0.9.1)
+  - UMengAnalytics (3.5.8)
+  - VEResource (2015.5.19)
+
+DEPENDENCIES:
+  - AFNetworking (~> 2.0)
+  - CYToolKit
+  - MBProgressHUD (~> 0.9.1)
+  - UMengAnalytics
+  - VEResource
+
+SPEC CHECKSUMS:
+  AFNetworking: 05edc0ac4c4c8cf57bcf4b84be5b0744b6d8e71e
+  CYToolKit: 539bbd00ed93ec52876f5e57cf47c1206cbdd8e9
+  MBProgressHUD: c47f2c166c126cf2ce36498d80f33e754d4e93ad
+  UMengAnalytics: 020551718ba37da017bd85ac4c38ffba2774f3ce
+  VEResource: acddd5b3f8b1b177696ced8f24e00cb75d7064a9
+
+COCOAPODS: 0.36.3
