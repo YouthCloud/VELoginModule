@@ -138,70 +138,64 @@
         return;
     }
     
+    [self doLoginAction:_userNameTextField.text withPassWord:_passWordTextField.text];
+    
 }
 
 #pragma mark - helper method
 
-//-(void)doLoginAction:(NSString *)userName withPassWord:(NSString *)password
-//{
-//    
-//    //NSString *md5Password = [DKUtils md5:password];
-//    NSString *paramStr = [NSString stringWithFormat:@"username=%@&password=%@&mtype=1&version=%@",userName,password,APP_VERSION];
-//    
-//    // 请求URL
-//    NSString *loginString = [NSString stringWithFormat:@"%@/login.htm", COMMONURL];
-//    NSURL *loginUrl = [NSURL URLWithString:loginString];
-//    
-//    
-//    [self.httpRequestLoader cancelAsynRequest];
-//    
-//    [self.httpRequestLoader startAsynRequestWithURL:loginUrl withParams:paramStr];
-//    
-//    __weak typeof(self) weakSelf = self;
-//    [self.httpRequestLoader setCompletionHandler:^(NSDictionary *resultData, NSString *error){
-//        [weakSelf hideHud];
-//        if (resultData != nil)
-//        {
-//            NSString *resultValue = [resultData objectForKey:@"type"];
-//            if ([resultValue isEqualToString:@"success"])
-//            {
-//                NSDictionary *userData = [resultData objectForKey:@"data"];
-//                int userId = [[userData objectForKey:@"userId"] intValue];
-//                NSString *nickName = [userData objectForKey:@"name"];
-//                NSString *sessionToken = [userData objectForKey:@"sessionToken"];
-//                BOOL turnTask = [[userData objectForKey:@"turnTask"] intValue] == 1 ? YES : NO;
-//                BOOL createTask = [[userData objectForKey:@"createTask"] intValue] == 1 ? YES : NO;
-//                [[NSUserDefaults standardUserDefaults] setObject:userName forKey:@"userName"];
-//                [[NSUserDefaults standardUserDefaults] synchronize];
-//                
-//                //更新用户信息
-//                [[DKUserInfoManager shareManager] updateUserInfoWithUserName:userName password:password userId:userId nickName:nickName sessionToken:sessionToken autoLogin:weakSelf.isAutoLoginOn turnTask:turnTask createTask:createTask];
-//                
-//                // 显示登录成功之后的界面
-//                dispatch_async(dispatch_get_main_queue(), ^{
-//                    
-//                    [weakSelf doActionAfterLoginSuccess];
-//                    
-//                    [DKUtils setTabbarViewControllerAsRootController];
-//                    [[NSNotificationCenter defaultCenter] postNotificationName:DKAppSignInSuccessNotification object:weakSelf];
-//                });
-//            }
-//            else
-//            {
-//                NSString *errorInfo = [resultData objectForKey:@"message"];
-//                if (errorInfo.length > 0) {
-//                    [weakSelf showHint:errorInfo];
-//                }
-//            }
-//        }
-//        
-//        if (error != nil)
-//        {
-//            [weakSelf showHint:@"网络连接异常"];
-//        }
-//    }];
-//    
-//}
+-(void)doLoginAction:(NSString *)userName withPassWord:(NSString *)password
+{
+    // 设备的Mac地址
+    NSString *macAddr = [DKUtils macAddress];
+    
+    // 设备的IMEI
+    NSString *imei = [DKUtils deviceIMEI];
+    
+    // 当前程序版本号
+    NSString *version = [DKUtils curAppVersion];
+    
+    // 推送Token
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    NSString *token = [defaults objectForKey:APNSTOKEN];
+    if ([token length] == 0) token = @"0";
+    
+    // 用户名和密码及URL编码
+    NSString *encodeUserName = [DKUtils encodeToPercentEscapeString:userName];
+    NSString *encodedPassword = [DKUtils encodeToPercentEscapeString:password];
+    
+    // 请求参数
+    NSString *paramStr = [NSString stringWithFormat:@"uname=%@&password=%@&mid=%@&mac=%@&mtype=1&token=%@&ver=%@", encodeUserName, encodedPassword, imei, macAddr, token, version];
+    
+    // 请求URL
+    NSString *loginString = [NSString stringWithFormat:@"%@/login?%@", COMMONURL,paramStr];
+    NSURL *loginUrl = [NSURL URLWithString:loginString];
+    
+    [self showHudInView:self.view hint:@"正在登录中..."];
+    
+    NSURLRequest *request = [NSURLRequest requestWithURL:loginUrl];
+    AFHTTPRequestOperation *op = [[AFHTTPRequestOperation alloc] initWithRequest:request];
+    op.responseSerializer = [AFJSONResponseSerializer serializer];
+    
+    [op setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
+        [self hideHud];
+        NSInteger result = [[responseObject objectForKey:@"result"] integerValue];
+        if (result == 0) {
+            NSLog(@"-----login success-----");
+            //NSInteger lid = [responseObject[@"lid"] integerValue];
+            NSString *sessionToken = responseObject[@"sessionToken"];
+            [[NSUserDefaults standardUserDefaults] setObject:sessionToken forKey:@"sessionToken"];
+            [[NSUserDefaults standardUserDefaults] synchronize];
+            
+            [self doActionAfterLoginSuccess];
+        }
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        [self hideHud];
+        [self showHint:[error localizedDescription]];
+    }];
+    
+    [[NSOperationQueue mainQueue] addOperation:op];
+}
 
 #pragma mark - helper method
 
